@@ -1,65 +1,4 @@
 from pymongo import MongoClient
-def obhectives():
-    # Use a Local MongoDB Instance:
-    # Your program must connect to a locally running MongoDB instance 
-    # (mongodb://localhost:27017/).
-
-    # You must create a MongoDB database for this project.
-
-    # Dishes should be stored in a MongoDB collection of your choice.
-
-    # The Program Must Be Capable Of:
-    # Adding a New Dish
-
-    # Each dish must have a name, calories, and ingredient list.
-
-    # Dish names must be unique (i.e., no two dishes can have the
-    # same name).
-
-    # Showing All Dishes That Include a Particular Ingredient
-
-    # The user should be able to input an ingredient and see all 
-    # dishes that contain it.
-
-    # Deleting a Particular Dish
-
-    # The user should be able to remove a dish by entering its name.
-
-    # If the dish does not exist, the program should notify the user.
-
-    # Updating a Dish
-
-    # The user should be able to update the calories or ingredient 
-    # list of an existing dish.
-
-    # The program must check that the dish exists before updating it.
-
-    # Showing All Unique Ingredients in the Restaurant
-
-    # The program should be able to retrieve and display a list 
-    # of all unique ingredients across all dishes.
-
-    # Showing All Dishes That Are Above or Below a Particular Calorie 
-    # Threshold
-
-    # The user should enter a calorie number and specify above or below.
-
-    # The program should return all dishes matching the condition.
-
-    # Program Structure & User Experience:
-    # The program should prompt the user for actions through a 
-    # menu-based system.
-
-    # User input should be properly validated (e.g., avoid empty names, 
-    # check for existing dishes before adding/updating/deleting).
-
-    # The program should display clear messages after each operation 
-    # (e.g., "Dish added successfully!", "No matching dishes found.").
-
-    # Use Object Oriented principles as necessary to organize your 
-    # code as needed. 
-    pass
-
 
 class DBManager:
 
@@ -85,12 +24,12 @@ class DBManager:
 
         # insert the dish along with the ids of the appropriate ingredients
         # to the database.
-
-        if (calories < 0):
+        if (name == ""):
+            raise Exception("name cannot be empty")
+        elif (calories < 0):
             # this flips the table and throws an error
             # which the caller must catch
             raise Exception("calories cannot be negative")
-        
         DBManager._check_dish_exists(name)
 
         all_ingredient_ids = DBManager.ingredient_manager(ingredients)
@@ -109,7 +48,8 @@ class DBManager:
         result = DBManager.dish_collection.find_one(query)
         if result == None:
             raise Exception("Dish not found")
-        
+
+
     @staticmethod
     def _check_dish_exists(dish_name):
         query = {"name": dish_name}
@@ -158,8 +98,6 @@ class DBManager:
         return all_ingredient_ids
 
     
-
-
     @staticmethod
     def _check_ingrediant_exists(ingredient_name):
         query = {"name": ingredient_name}
@@ -185,7 +123,6 @@ class DBManager:
         ingredient = DBManager._get_ingredient(ingredient_name)
         if not ingredient:
             return []
-        
         ingredient_id = ingredient["_id"]
 
         # get all dishes that contain this ingredient
@@ -195,7 +132,6 @@ class DBManager:
         # but this works to filter for all dishes that "contain" said
         # ingredient
         query = {"ingredients": ingredient_id}
-
         return list(DBManager.dish_collection.find(query))
         
 
@@ -234,9 +170,7 @@ class DBManager:
     @staticmethod
     def update_dish_ingredients(dish_name, new_ingredients):
         DBManager._if_dish_exists(dish_name)
-    
         complete_list = DBManager.ingredient_manager(new_ingredients)
-
         DBManager.dish_collection.update_one({"name": dish_name}, {"$set": {"ingredients": complete_list}})
         return 
 
